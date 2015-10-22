@@ -159,8 +159,8 @@ void SpeedControls()
 	if(vexRT[Btn8U] == 1)
 	{
 		change = full;
-		MVR = 77;
-		MVL = 77;
+		MVR = 65;
+		MVL = 65;
 		wait1Msec(20);
 	}
 	if(vexRT[Btn8D] == 1)
@@ -173,8 +173,8 @@ void SpeedControls()
 	if(vexRT[Btn8R] == 1)
 	{
 		change = mid;
-		MVR = 64;
-		MVL = 64;
+		MVR = 50;
+		MVL = 50;
 		wait1Msec(20);
 	}
 	if(vexRT[Btn8L] == 1)
