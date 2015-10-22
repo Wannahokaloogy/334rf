@@ -30,8 +30,8 @@ int change = 0;
 
 
 int mid = 95;
-int close = 85 ;
-int full = 116 ;
+int close = 80 ;
+int full = 114 ;
 
 int battery1Level;
 int battery2Level;
@@ -139,22 +139,18 @@ void Speed()
 void Pid()
 {
 	if (rightSpeed < change )
-	{
 		MVR=MVR+1;
-	}
 	else if (rightSpeed > change && MVR > 0)
-	{
 		MVR=MVR-1;
-	}
+	else
+		MVR= MVR;
 
 	if (leftSpeed < change )
-	{
 		MVL=MVL+1;
-	}
 	else if (leftSpeed > change && MVL > 0)
-	{
 		MVL=MVL-1;
-	}
+else
+	MVL= MVL;
 
 }
 void SpeedControls()
@@ -184,8 +180,8 @@ void SpeedControls()
 	if(vexRT[Btn8L] == 1)
 	{
 		change = close;
-		MVR = 58;
-		MVL = 58;
+		MVR = 40;
+		MVL = 40;
 		wait1Msec(20);
 	}
 
@@ -339,7 +335,7 @@ task autonomous()
 		resetTimer(T2);
 while (true)
 	{
-		change = 58;
+		change = full;
 		if (time1[T1]>200)
 		{
 			Speed();
