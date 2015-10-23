@@ -31,7 +31,8 @@ int change = 0;
 
 int mid = 95;
 int close = 80 ;
-int full = 114 ;
+int full = 111 ;
+int intakerun = 0;
 
 
 int rightSpeed,leftSpeed,lastRightSpeed,lastLeftSpeed;
@@ -219,6 +220,21 @@ void Intake()
 		motor[Intake2] = 0;
 		motor[Intake1] = 0;
 	}
+
+	if(vexRT[Btn7L] == 1)
+	{
+		intakeRun = 1;
+  }
+  else if(vexRT[Btn7R] == 1)
+	{
+		intakeRun = 0;
+  }
+
+  if (intakerun == 1)
+  {
+  	motor[Intake2] = 127;
+		motor[Intake1] = 127;
+	}
 }
 
 void Staggershot() // autonomous function starts and stops the intake
@@ -249,21 +265,21 @@ void SpeedControls2()
 		MVL = 77;
 		wait1Msec(20);
 	}
-	if(vexRT[Btn8DXmtr2] == 1)
+	if(vexRT[Btn7LXmtr2] == 1 || vexRT[Btn7RXmtr2] == 1)
 	{
 		change = 0;
 		MVR = 0;
 		MVL = 0;
 		wait1Msec(20);
 	}
-	if(vexRT[Btn8RXmtr2] == 1)
+	if(vexRT[Btn8RXmtr2] == 1 || vexRT[Btn8LXmtr2] == 1)
 	{
 		change = mid;
 		MVR = 64;
 		MVL = 64;
 		wait1Msec(20);
 	}
-	if(vexRT[Btn8LXmtr2] == 1)
+	if(vexRT[Btn8DXmtr2] == 1)
 	{
 		change = close;
 		MVR = 58;
@@ -316,7 +332,6 @@ task autonomous() // main task basically, but this will run if we are put itno a
 {
 		MVR = 77;
 		MVL = 77;
-		change = full;
 		resetTimer(T2);
 while (true)
 	{
@@ -329,6 +344,7 @@ while (true)
 			SensorValue[RightSpeed] = 0;
 			Pid();
 		}
+		change = full;
 		flyWheelRun();
 		if (time1[T2]>2000)
 		{
