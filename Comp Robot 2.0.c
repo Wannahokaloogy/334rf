@@ -8,8 +8,8 @@
 #pragma config(Motor,  port2,           BLD,           tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port3,           LauncherR,     tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port4,           LauncherRY,    tmotorVex393_MC29, openLoop, reversed)
-#pragma config(Motor,  port5,           balllift,      tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port6,           BallL,         tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port5,           Intake1,       tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port6,           Intake2,       tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port7,           LauncherL,     tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           LauncherLY,    tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port9,           BRD,           tmotorVex393_MC29, openLoop)
@@ -33,30 +33,19 @@ int mid = 95;
 int close = 80 ;
 int full = 114 ;
 
-int battery1Level;
-int battery2Level;
-int bat;
 
 int rightSpeed,leftSpeed,lastRightSpeed,lastLeftSpeed;
-int intakeSpeed;
 
-int Priority = 0,;
 int X2 = 0, Y1 = 0, X1 = 0, threshold = 15;
 
 int Balls = 0;
 int pause;
 
-int MVR;
+int MVR; // Motor Velocity right
 int MVL;
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//FIRST DRIVER/////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-void ball()   //counts balls
+void ball()   //counts balls... currently not used
 {
 	if (SensorValue[BallIn]== 1 && pause != 1)
 	{
@@ -94,7 +83,7 @@ void Pnumatics() //brake
 }
 
 
-void Drive()
+void Drive()//thresholds keep motor whine at bay
 {
 	if(abs(vexRT[Ch4]) > threshold)
 		X1 = -vexRT[Ch4];
@@ -117,17 +106,15 @@ void Drive()
 	motor[BLD] =  Y1 + X2 - X1;
 }
 
-
-void ButtCheeks()
+void flyWheelRun() // this updates our flywheel motor values to the actual motors
 {
-	motor[LauncherRY] = MVR;
+  motor[LauncherRY] = MVR;
 	motor[LauncherR] = MVR;
 	motor[LauncherL] = MVL;
 	motor[LauncherLY] = MVL;
 }
 
-
-void Speed()
+void Speed()// this runs after a timer is up to give us a spedometer
 {
 	lastLeftSpeed = leftSpeed;
 	lastRightSpeed = rightSpeed;
@@ -136,7 +123,7 @@ void Speed()
 }
 
 
-void Pid()
+void Pid() //this is our code to make sure the flywheels keep the same speed
 {
 	if (rightSpeed < change )
 		MVR=MVR+1;
@@ -153,6 +140,8 @@ else
 	MVL= MVL;
 
 }
+
+
 void SpeedControls()
 {
 
@@ -203,56 +192,52 @@ void SpeedControls()
 }
 
 
-void Fire()
+void Intake()
 {
 	if(vexRT[Btn5U] == 1)
 	{
-		motor[BallL] = 127;
-		motor[balllift] = 127;
+		motor[Intake2] = 127;
+		motor[Intake1] = 127;
 	}
 	else if(vexRT[Btn5D] == 1)
 	{
-		motor[BallL] = -127;
-		motor[balllift] = -127;
+		motor[Intake2] = -127;
+		motor[Intake1] = -127;
 	}
 	else if(vexRT[Btn5UXmtr2] == 1)
 	{
-		motor[BallL] = 127;
-		motor[balllift] = 127;
+		motor[Intake2] = 127;
+		motor[Intake1] = 127;
 	}
 	else if(vexRT[Btn5DXmtr2] == 1)
 	{
-		motor[BallL] = -127;
-		motor[balllift] = -127;
+		motor[Intake2] = -127;
+		motor[Intake1] = -127;
 	}
 	else
 	{
-		motor[BallL] = 0;
-		motor[balllift] = 0;
+		motor[Intake2] = 0;
+		motor[Intake1] = 0;
 	}
 }
 
-void Staggershot()
+void Staggershot() // autonomous function starts and stops the intake
 {
 if (time1(T3) > 1000)
 {
-	motor[BallL] = 127;
-	motor[balllift] = 127;
+	motor[Intake2] = 127;
+	motor[Intake1] = 127;
 }
 
 if (time1(T4) > 1750)
 	{
-		motor[BallL] = 0;
-		motor[balllift] = 0;
+		motor[Intake2] = 0;
+		motor[Intake1] = 0;
 		resetTimer(T4);
 		resetTimer(T3);
 	}
 
 }
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//SECOND DRIVER/////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 void SpeedControls2()
@@ -318,7 +303,7 @@ void SpeedControls2()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void pre_auton()
+void pre_auton() // this is where we can reset values/timers etc
 {
 	SensorValue[LeftSpeed] = 0;
 	SensorValue[RightSpeed] = 0;
@@ -327,7 +312,7 @@ void pre_auton()
 }
 
 
-task autonomous()
+task autonomous() // main task basically, but this will run if we are put itno autonomous mode
 {
 		MVR = 77;
 		MVL = 77;
@@ -344,7 +329,7 @@ while (true)
 			SensorValue[RightSpeed] = 0;
 			Pid();
 		}
-		ButtCheeks();
+		flyWheelRun();
 		if (time1[T2]>2000)
 		{
 			Staggershot();
@@ -353,11 +338,10 @@ while (true)
 
 }
 
-task usercontrol()
+task usercontrol() // main task but for driver mode.
 {
 	while (true)
 	{
-		//ball();
 		if (time1[T1]>200)
 		{
 			Speed();
@@ -367,8 +351,8 @@ task usercontrol()
 			Pid();
 		}
 		Drive();
-		ButtCheeks();
-		Fire();
+		Intake();
+		flyWheelRun();
 		Pnumatics();
 		SpeedControls();
 		SpeedControls2();
