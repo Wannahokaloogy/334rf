@@ -29,10 +29,10 @@
 int change = 0;
 
 
-int mid = 95;
+int mid = 97;
 int close = 80 ;
 int full = 111 ;
-int intakerun = 0;
+int IntakeRun = 0;
 
 
 int rightSpeed,leftSpeed,lastRightSpeed,lastLeftSpeed;
@@ -223,14 +223,14 @@ void Intake()
 
 	if(vexRT[Btn7L] == 1)
 	{
-		intakeRun = 1;
+		IntakeRun = 1;
   }
   else if(vexRT[Btn7R] == 1)
 	{
-		intakeRun = 0;
+		IntakeRun = 0;
   }
 
-  if (intakerun == 1)
+  if (IntakeRun == 1)
   {
   	motor[Intake2] = 127;
 		motor[Intake1] = 127;
