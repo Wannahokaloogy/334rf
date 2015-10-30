@@ -1,16 +1,18 @@
+
 #pragma config(Sensor, in1,    Bat2,           sensorAnalog)
 #pragma config(Sensor, dgtl2,  BallIn,         sensorTouch)
 #pragma config(Sensor, dgtl3,  BallOut,        sensorTouch)
-#pragma config(Sensor, dgtl8,  solenoid,       sensorDigitalOut)
+#pragma config(Sensor, dgtl7,  solenoid2,      sensorDigitalOut)
+#pragma config(Sensor, dgtl8,  solenoid1,      sensorDigitalOut)
 #pragma config(Sensor, dgtl9,  RightSpeed,     sensorQuadEncoder)
 #pragma config(Sensor, dgtl11, LeftSpeed,      sensorQuadEncoder)
 #pragma config(Motor,  port1,           FRD,           tmotorVex393_HBridge, openLoop, reversed)
 #pragma config(Motor,  port2,           BLD,           tmotorVex393_MC29, openLoop, reversed)
-#pragma config(Motor,  port3,           LauncherRB,     tmotorVex393_MC29, openLoop, reversed)
+#pragma config(Motor,  port3,           LauncherRB,    tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port4,           LauncherRT,    tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port5,           Intake1,       tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           Intake2,       tmotorVex393_MC29, openLoop, reversed)
-#pragma config(Motor,  port7,           LauncherLB,     tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port7,           LauncherLB,    tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           LauncherLT,    tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port9,           BRD,           tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port10,          FLD,           tmotorVex393_HBridge, openLoop, reversed)
@@ -29,9 +31,9 @@
 int change = 0;
 
 
-int mid = 97;
-int close = 80 ;
-int full = 113 ;
+int mid = 94;
+int close = 79;
+int full = 110;
 int IntakeRun = 0;
 
 
@@ -50,7 +52,7 @@ void ball()   //counts balls... currently not used
 {
 	if (SensorValue[BallIn]== 1 && pause != 1)
 	{
-		Balls = Balls+1;
+		Balls ++;
 		pause = 1;
 		if (pause == 1)
 		{
@@ -62,7 +64,7 @@ void ball()   //counts balls... currently not used
 
 	if (SensorValue[BallOut]== 1 && pause != 1)
 	{
-		Balls = Balls-1;
+		Balls --;
 		pause = 1;
 		if (pause == 1)
 		{
@@ -76,11 +78,20 @@ void ball()   //counts balls... currently not used
 void Pnumatics() //brake
 {
 	if(vexRT[Btn6U] == 1)
-		SensorValue[solenoid] = 1;
+	{
+		SensorValue[solenoid1] = 1;
+		SensorValue[solenoid2] = 1;
+	}
 	else if(vexRT[Btn6UXmtr2] == 1)
-		SensorValue[solenoid] = 1;
+	{
+		SensorValue[solenoid1] = 1;
+		SensorValue[solenoid2] = 1;
+	}
 	else
-		SensorValue[solenoid] = 0;
+	{
+		SensorValue[solenoid1] = 0;
+		SensorValue[solenoid2] = 0;
+	}
 }
 
 
@@ -127,16 +138,16 @@ void Speed()// this runs after a timer is up to give us a spedometer
 void Pid() //this is our code to make sure the flywheels keep the same speed
 {
 	if (rightSpeed < change )
-		MVR=MVR+1;
+		MVR++;
 	else if (rightSpeed > change && MVR > 0)
-		MVR=MVR-1;
+		MVR--;
 	else
 		MVR= MVR;
 
 	if (leftSpeed < change )
-		MVL=MVL+1;
+		MVL++;
 	else if (leftSpeed > change && MVL > 0)
-		MVL=MVL-1;
+		MVL--;
 	else
 		MVL= MVL;
 
@@ -183,14 +194,14 @@ void SpeedControls()
 	{
 		if(MVR >=0)
 		{
-			change = change -1;
+			change --;
 			wait1Msec(20);
 		}
 	}
 
 	if(vexRT[Btn7U] == 1)
 	{
-		change = change +1;
+		change ++;
 		wait1Msec(20);
 	}
 
@@ -281,16 +292,16 @@ void SpeedControls2()
 	if(vexRT[Btn8RXmtr2] == 1 || vexRT[Btn8LXmtr2] == 1)
 	{
 		change = mid;
-		MVR = 64;
-		MVL = 64;
+		MVR = 50;
+		MVL = 50;
 		wait1Msec(20);
 		resetTimer(T4);
 	}
 	if(vexRT[Btn8DXmtr2] == 1)
 	{
 		change = close;
-		MVR = 58;
-		MVL = 58;
+		MVR = 40;
+		MVL = 40;
 		wait1Msec(20);
 		resetTimer(T4);
 	}
@@ -299,21 +310,21 @@ void SpeedControls2()
 	{
 		if(MVR >=0)
 		{
-			change = change -1;
+			change --;
 			wait1Msec(20);
 		}
 	}
 
 	if(vexRT[Btn7UXmtr2] == 1)
 	{
-		change = change +1;
+		change ++;
 		wait1Msec(20);
 	}
 
 	if(vexRT[Btn7UXmtr2] == 1)
 	{
-		MVR = MVR+1;
-		MVL = MVL+1;
+		MVR ++;
+		MVL ++;
 		wait1Msec(200);
 	}
 }
@@ -339,23 +350,23 @@ void pre_auton() // this is where we can reset values/timers etc
 
 task autonomous() // main task basically, but this will run if we are put itno autonomous mode
 {
-	MVR = 77;
-	MVL = 77;
+	MVR = 70;
+	MVL = 70;
 	resetTimer(T2);
+	resetTimer(T4);
 	while (true)
 	{
-		change = full;
 		if (time1[T1]>200)
 		{
 			Speed();
 			resetTimer(T1);
 			SensorValue[LeftSpeed] = 0;
 			SensorValue[RightSpeed] = 0;
-			Pid();
+		  Pid();
 		}
 		change = full;
 		flyWheelRun();
-		if (time1[T2]>2000)
+		if (time1[T2]>3000)
 		{
 			Staggershot();
 		}
@@ -365,6 +376,7 @@ task autonomous() // main task basically, but this will run if we are put itno a
 
 task usercontrol() // main task but for driver mode.
 {
+	resetTimer(T4);
 	while (true)
 	{
 		if (time1[T1]>200)
@@ -373,7 +385,7 @@ task usercontrol() // main task but for driver mode.
 			resetTimer(T1);
 			SensorValue[LeftSpeed] = 0;
 			SensorValue[RightSpeed] = 0;
-			if (time1[T4]>1000)
+			if (time1[T4]>600)
 			{
 				Pid();
 			}
