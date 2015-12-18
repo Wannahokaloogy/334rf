@@ -38,7 +38,25 @@ int IntakeRun = 0;
 float velosityL;
 float velosityR;
 
+float kp = 0.01;
+	float ki = 0.01;
+	float kd = 0.01;
 
+	float currentL;
+	float currentR;
+	float circ = 5*3.141592652589;
+
+	float integralActiveZone = (((1*12/circ)*360)/7);
+	float errorTl;
+	float errorTr;
+	float lastErrorL;
+	float lastErrorR;
+	float proportionL;
+	float proportionR;
+	float integralL;
+	float integralR;
+	float derivativeL;
+	float derivativeR;
 
 int X2 = 0, Y1 = 0, X1 = 0, threshold = 15; //deadzone threshold
 
@@ -98,30 +116,18 @@ void flyWheelRun() // this updates our flywheel motor values to the actual motor
 
 void velocity()
 {
+	if(time1(T1) > 200)
+	{
 	velosityL = SensorValue[RightSpeed];
 	velosityR = SensorValue[LeftSpeed];
+	resetTimer(T1);
+	SensorValue[RightSpeed]= 0;
+	SensorValue[LeftSpeed]= 0;
+}
 }
 
 task Pid(){
-	float kp = 1.3;
-	float ki = 0.1;
-	float kd = 0.2;
 
-	float currentL;
-	float currentR;
-	float circ = 5*3.141592652589;
-
-	float integralActiveZone = (((1*12/circ)*360)/7);
-	float errorTl;
-	float errorTr;
-	float lastErrorL;
-	float lastErrorR;
-	float proportionL;
-	float proportionR;
-	float integralL;
-	float integralR;
-	float derivativeL;
-	float derivativeR;
 
 	while(true)
 	{
