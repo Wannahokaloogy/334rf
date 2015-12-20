@@ -38,7 +38,24 @@ int IntakeRun = 0;
 float velosityL;
 float velosityR;
 
+float kp = 0.01;
+float ki = 0.01;
+float kd = 0.01;
 
+float currentL;								//yes I know they can be moved back to local when were done debugging.
+float currentR;
+
+float integralActiveZone = 20;
+float errorTl;
+float errorTr;
+float lastErrorL;
+float lastErrorR;
+float proportionL;
+float proportionR;
+float integralL;
+float integralR;
+float derivativeL;
+float derivativeR;
 
 int X2 = 0, Y1 = 0, X1 = 0, threshold = 15; //deadzone threshold
 
@@ -68,17 +85,17 @@ void Pnumatics() //brake
 void Drive()//thresholds keep motor whine at bay
 {
 	if(abs(vexRT[Ch4]) > threshold)
-		X1 = -vexRT[Ch4]/1.6;
+		X1 = -vexRT[Ch4];
 	else
 		X1 = 0;
 
 	if(abs(vexRT[Ch1]) > threshold)
-		X2 = -vexRT[Ch1]/1.6;
+		X2 = -vexRT[Ch1];
 	else
 		X2 = 0;
 
 	if(abs(vexRT[Ch3]) > threshold)
-		Y1 = -vexRT[Ch3]/1.6;
+		Y1 = -vexRT[Ch3];
 	else
 		Y1 = 0;
 
@@ -88,47 +105,27 @@ void Drive()//thresholds keep motor whine at bay
 	motor[BLD] =  (Y1) + (X2) - (X1);
 }
 
-void flyWheelRun() // this updates our flywheel motor values to the actual motors
-{
-	motor[LauncherRF] = MVR;
-	motor[LauncherRB] = MVR;
-	motor[LauncherLB] = MVL;
-	motor[LauncherLF] = MVL;
-}
-
 void velocity()
 {
-	velosityL = SensorValue[RightSpeed];
-	velosityR = SensorValue[LeftSpeed];
+	if(time1(T1) > 200)
+	{
+		velosityL = SensorValue[RightSpeed];
+		velosityR = SensorValue[LeftSpeed];
+		resetTimer(T1);
+		SensorValue[RightSpeed]= 0;
+		SensorValue[LeftSpeed]= 0;
+	}
 }
 
 task Pid(){
-	float kp = 1.3;
-	float ki = 0.1;
-	float kd = 0.2;
 
-	float currentL;
-	float currentR;
-	float circ = 5*3.141592652589;
-
-	float integralActiveZone = (((1*12/circ)*360)/7);
-	float errorTl;
-	float errorTr;
-	float lastErrorL;
-	float lastErrorR;
-	float proportionL;
-	float proportionR;
-	float integralL;
-	float integralR;
-	float derivativeL;
-	float derivativeR;
 
 	while(true)
 	{
 		velocity();
 
-		float errorL = (((power*12/circ)*360)/7) - velosityL;
-		float errorR = (((power*12/circ)*360)/7) - velosityR;
+		float errorL = power - velosityL;
+		float errorR = power - velosityR;
 		//////////////////////////
 		if(errorL <integralActiveZone && errorL != 0)
 			errorTl += errorL;
@@ -139,15 +136,18 @@ task Pid(){
 			errorTr += errorR;
 		else
 			errorTr = 0;
+
 		///////////////////////
 		if(errorTl > 50/ki)
 			errorTl = 50/ki;
 
 		if(errorTr > 50/ki)
 			errorTr = 50/ki;
+
 		////////////////////////////
 		if(errorL == 0)
 			derivativeL = 0;
+
 		if(errorR == 0)
 			derivativeR = 0;
 		////////////////////////////
@@ -178,55 +178,55 @@ task SpeedControls()
 {
 	while(true){
 
-	if(vexRT[Btn8U] == 1)
-	{
-		power = full;
-	}
-	if(vexRT[Btn8D] == 1)
-	{
-		power = off;
-  }
-	if(vexRT[Btn8R] == 1)
-	{
-		power = close;
-	}
-	if(vexRT[Btn8L] == 1)
-	{
-		power = mid;
-	}
+		if(vexRT[Btn8U] == 1)
+		{
+			power = full;
+		}
+		if(vexRT[Btn8D] == 1)
+		{
+			power = off;
+		}
+		if(vexRT[Btn8R] == 1)
+		{
+			power = close;
+		}
+		if(vexRT[Btn8L] == 1)
+		{
+			power = mid;
+		}
 
-	if(vexRT[Btn7D] == 1)
-	{
-	}
+		if(vexRT[Btn7D] == 1)
+		{
+		}
 
-	if(vexRT[Btn7U] == 1)
-	{
-	}
-	//////////////////////////
+		if(vexRT[Btn7U] == 1)
+		{
+		}
+		//////////////////////////
 		if(vexRT[Btn8UXmtr2] == 1)
-	{
-	}
-	if(vexRT[Btn8DXmtr2] == 1)
-	{
-	}
-	if(vexRT[Btn8RXmtr2] == 1)
-	{
-	}
-	if(vexRT[Btn8LXmtr2] == 1)
-	{
-	}
+		{
+		}
+		if(vexRT[Btn8DXmtr2] == 1)
+		{
+		}
+		if(vexRT[Btn8RXmtr2] == 1)
+		{
+		}
+		if(vexRT[Btn8LXmtr2] == 1)
+		{
+		}
 
-	if(vexRT[Btn7DXmtr2] == 1)
-	{
-	}
+		if(vexRT[Btn7DXmtr2] == 1)
+		{
+		}
 
-	if(vexRT[Btn7UXmtr2] == 1)
-	{
-	}
-	/////////////////////////
+		if(vexRT[Btn7UXmtr2] == 1)
+		{
+		}
+		/////////////////////////
 
-	wait1Msec(20);
-}
+		wait1Msec(20);
+	}
 }
 
 
