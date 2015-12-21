@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //INTEGERS/////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-int power = 0;
+int powerTarget = 0;
 
 
 int mid = 170;
@@ -88,14 +88,6 @@ void Drive()//thresholds keep motor whine at bay
 	motor[BLD] =  (Y1) + (X2) - (X1);
 }
 
-void flyWheelRun() // this updates our flywheel motor values to the actual motors
-{
-	motor[LauncherRF] = MVR;
-	motor[LauncherRB] = MVR;
-	motor[LauncherLB] = MVL;
-	motor[LauncherLF] = MVL;
-}
-
 void velocity()
 {
 	velosityL = SensorValue[RightSpeed];
@@ -103,15 +95,14 @@ void velocity()
 }
 
 task Pid(){
-	float kp = 1.3;
-	float ki = 0.1;
-	float kd = 0.2;
+	float kp = .01;
+	float ki = 0.01;
+	float kd = 0;
 
 	float currentL;
 	float currentR;
-	float circ = 5*3.141592652589;
 
-	float integralActiveZone = (((1*12/circ)*360)/7);
+	float integralActiveZone = 20;
 	float errorTl;
 	float errorTr;
 	float lastErrorL;
@@ -127,8 +118,8 @@ task Pid(){
 	{
 		velocity();
 
-		float errorL = (((power*12/circ)*360)/7) - velosityL;
-		float errorR = (((power*12/circ)*360)/7) - velosityR;
+		float errorL = powerTarget - velosityL;
+		float errorR = powerTarget - velosityR;
 		//////////////////////////
 		if(errorL <integralActiveZone && errorL != 0)
 			errorTl += errorL;
@@ -180,19 +171,19 @@ task SpeedControls()
 
 	if(vexRT[Btn8U] == 1)
 	{
-		power = full;
+		powerTarget = full;
 	}
 	if(vexRT[Btn8D] == 1)
 	{
-		power = off;
+		powerTarget = off;
   }
 	if(vexRT[Btn8R] == 1)
 	{
-		power = close;
+		powerTarget = close;
 	}
 	if(vexRT[Btn8L] == 1)
 	{
-		power = mid;
+		powerTarget = mid;
 	}
 
 	if(vexRT[Btn7D] == 1)
